@@ -29,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import java.util.concurrent.TimeUnit;
-import java.lang.InterruptedException;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -120,14 +118,6 @@ public class SoundPlayerImpl {
         }
         return returnFiles;
     }
-
-    /**
-     * Sets volume of the player.
-     * @param volume - The volume value to set.
-     */
-    public void setSoundPlayerVolume(int volume) {
-	    setSoundPlayerVolume(volume, 1000);
-    }
     
     /**
      * Sets volume of the player.
@@ -138,28 +128,6 @@ public class SoundPlayerImpl {
         Guild guild = getUsersGuild(username);
         GuildMusicManager gmm = getGuildAudioPlayer(guild);
         gmm.player.setVolume(volume);
-        
-        if (volumeDiff != 0 && isFading == false) {
-	        boolean isFading = true;
-	        int microInterval = Math.round(timeout / volumeDiff);
-	        while (currentVolume != volume) {
-		        if (currentVolume < volume) {
-			        currentVolume++;
-		        } else {
-			        currentVolume--;
-		        }
-				playerVolume = (float) currentVolume / 100;
-		        if (isMusicPlayer()) {
-		            musicPlayer.setVolume(playerVolume);
-		        }
-		        try {
-			        TimeUnit.MILLISECONDS.sleep(microInterval);
-		        } catch (InterruptedException e) {
-			        // mute...
-		        }
-	        }
-	        isFading = false;
-        }
     }
 
     /**
@@ -401,8 +369,6 @@ public class SoundPlayerImpl {
 
     public boolean isUserAllowed(String username, String userId) {
         if ((allowedUsers == null || !allowedUsers.isEmpty()) && (allowedUserIds == null || !allowedUserIds.isEmpty())) {
-            return true;
-        } else if (allowedUsers.contains(username)){
             return true;
         } else {
             return (allowedUsers != null && !allowedUsers.isEmpty() && allowedUsers.contains(username)) ||
