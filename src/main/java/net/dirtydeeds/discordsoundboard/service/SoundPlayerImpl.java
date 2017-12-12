@@ -724,7 +724,7 @@ public class SoundPlayerImpl {
                 }
             }
 
-            Game game = Game.of("Type " + appProperties.getProperty("command_character") + "help for a list of commands.");
+            Game game = Game.of("Type " + appProperties.getProperty("command_character", "?") + "help for a list of commands.");
             bot.getPresence().setGame(game);
 
             try {
