@@ -6,3 +6,8 @@ src/main/resources/app.properties
 build
 .gradle/
 sounds/*
+target
+.settings
+.classpath
+.project
+/bin/
