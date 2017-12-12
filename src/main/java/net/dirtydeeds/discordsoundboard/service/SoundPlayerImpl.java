@@ -661,6 +661,10 @@ public class SoundPlayerImpl {
             if (bot != null) {
                 bot.shutdown();
             }
+            
+            String initialVolume = appProperties.getProperty("player_volume", "75");
+            playerVolume = (float) Integer.parseInt(initialVolume) / 100;
+            LOG.info("Initializing playerVolume at: " + playerVolume);
 
             String botToken = appProperties.getProperty("bot_token");
             bot = new JDABuilder(AccountType.BOT)
@@ -757,6 +761,7 @@ public class SoundPlayerImpl {
      */
     private void loadProperties() {
         appProperties = new Properties();
+        appProperties.putAll(System.getenv());
         InputStream stream = null;
         try {
             stream = new FileInputStream(System.getProperty("user.dir") + "/app.properties");
@@ -777,7 +782,7 @@ public class SoundPlayerImpl {
                     stream.close();
                 } else {
                     //TODO: Would be nice if we could auto create a default app.properties here.
-                    LOG.error("You do not have an app.properties file. Please create one.");
+                    LOG.error("You do not have an app.properties file. Please create one or ensure all properties are set in environment.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
