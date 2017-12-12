@@ -805,4 +805,8 @@ public class SoundPlayerImpl {
     private void addBotListener(Object listener) {
         bot.addEventListener(listener);
     }
+
+    public void reloadSounds() {
+        getFileList();
+    }
 }

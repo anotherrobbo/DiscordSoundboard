@@ -113,6 +113,7 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 	                            "\n" + commandCharacter + "volume 0-100     - Sets the playback volume." +
 								"\n" + commandCharacter + "stop             - Stops the sound that is currently playing." +
 	                            "\n" + commandCharacter + "summon           - Summon the bot to your channel." +
+	                            "\n" + commandCharacter + "rlsounds         - Reload the list of sound files." +
 	                            "\n" + commandCharacter + "info             - Returns info about the bot.```");
 						deleteMessage(event);
 	                } else if (message.startsWith(commandCharacter + "volume")) {
@@ -241,7 +242,15 @@ public class ChatSoundBoardListener extends ListenerAdapter {
 							e.printStackTrace();
 							LOG.error(e.getMessage());
 						}
-	                } else if (message.startsWith(commandCharacter) && message.length() >= 2) {
+	                } else if (message.startsWith(commandCharacter + "rlsounds")) {
+                        try {
+                            soundPlayer.reloadSounds();
+                            deleteMessage(event);
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                            LOG.error(e.getMessage());
+                        }
+                    } else if (message.startsWith(commandCharacter) && message.length() >= 2) {
 	                    if (!muted) {
 	                        try {
 	                            int repeatNumber = 1;
