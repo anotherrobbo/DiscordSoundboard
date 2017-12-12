@@ -32,8 +32,8 @@ body {
     margin-top: 10px;
 }
 
-.randomButton {
-    vertical-align: top;
+.randomButton, .stopButton {
+    vertical-align: top !important;
 }
 
 .userNameSelect {
