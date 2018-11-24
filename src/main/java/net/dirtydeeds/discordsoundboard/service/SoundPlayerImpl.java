@@ -16,6 +16,7 @@ import net.dirtydeeds.discordsoundboard.listeners.ChatSoundBoardListener;
 import net.dirtydeeds.discordsoundboard.listeners.EntranceSoundBoardListener;
 import net.dirtydeeds.discordsoundboard.listeners.LeaveSoundBoardListener;
 import net.dirtydeeds.discordsoundboard.repository.SoundFileRepository;
+import net.dirtydeeds.discordsoundboard.util.SystemPropertyUtil;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.voice.GenericGuildVoiceEvent;
@@ -78,7 +79,7 @@ public class SoundPlayerImpl {
 //        this.mainWatch.addObserver(this);
         this.repository = repository;
 
-        loadProperties();
+        this.appProperties = SystemPropertyUtil.loadProperties();
         initializeDiscordBot();
         getFileList();
 
@@ -96,7 +97,7 @@ public class SoundPlayerImpl {
         GuildMusicManager mng = musicManagers.get(guildId);
         if (mng == null) {
             synchronized (musicManagers) {
-                mng = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager));
+                mng = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager, (int) (playerVolume * 100)));
             }
         }
         return mng;
@@ -604,6 +605,13 @@ public class SoundPlayerImpl {
         Map<String,SoundFile> returnFiles = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         try {
             
+            try {
+                DropboxSyncImpl dbox = new DropboxSyncImpl();
+                dbox.performDropboxSync();
+            } catch (Exception e) {
+                LOG.error("Dropbox Sync failed", e);
+            }
+            
             soundFileDir = appProperties.getProperty("sounds_directory");
             if (soundFileDir == null || soundFileDir.isEmpty())  {
                 soundFileDir = System.getProperty("user.dir") + "/sounds";
@@ -754,40 +762,6 @@ public class SoundPlayerImpl {
         guild.getAudioManager().setSendingHandler(null);
         guild.getAudioManager().closeAudioConnection();
         LOG.info("Disconnecting from channel.");
-    }
-
-    /**
-     * Loads in the properties from the app.properties file
-     */
-    private void loadProperties() {
-        appProperties = new Properties();
-        appProperties.putAll(System.getenv());
-        InputStream stream = null;
-        try {
-            stream = new FileInputStream(System.getProperty("user.dir") + "/app.properties");
-            appProperties.load(stream);
-            stream.close();
-            return;
-        } catch (FileNotFoundException e) {
-            LOG.warn("Could not find app.properties file.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (stream == null) {
-            LOG.warn("Loading app.properties file from resources folder");
-            try {
-                stream = this.getClass().getResourceAsStream("/app.properties");
-                if (stream != null) {
-                    appProperties.load(stream);
-                    stream.close();
-                } else {
-                    //TODO: Would be nice if we could auto create a default app.properties here.
-                    LOG.error("You do not have an app.properties file. Please create one or ensure all properties are set in environment.");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @PreDestroy
